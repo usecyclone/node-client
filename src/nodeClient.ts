@@ -10,10 +10,12 @@ export default class NodeClient {
     constructor(projectId: string, apiKey: string) {
         this.projectId = projectId
         this.posthogClient = new PostHog(apiKey, {
-            host: CYCLONE_POSTHOG_ADDRESS
+            host: CYCLONE_POSTHOG_ADDRESS,
+            // use aggressive flush policy since CLI is used
+            flushAt: 1,
+            flushInterval: 0,
         })
         this.machineId = machineId.machineIdSync(true)
-
         this._setup()
     }
 
@@ -47,6 +49,8 @@ export default class NodeClient {
                     signal: signal,
                 }
             })
+            // TODO: debug why the flush here is not working
+            this.posthogClient.flush()
             this.shutdown()
         };
     }
