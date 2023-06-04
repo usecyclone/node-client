@@ -1,4 +1,4 @@
-import NodeClient from "./nodeClient";
+import NodeClient from "./nodeClient.js";
 
 export { NodeClient };
 
