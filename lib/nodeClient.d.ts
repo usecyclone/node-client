@@ -4,7 +4,13 @@ export default class NodeClient {
     posthogClient: PostHog;
     machineId: string;
     constructor(projectId: string, apiKey: string);
-    getSignalHandler(signal: String): () => void;
+    _setup(): void;
+    _reportArgvEvent(): void;
+    _getShutdownSignalHandler(signal: String): () => void;
+    _getMetadata(): {
+        projectId: string;
+        machineId: string;
+    };
     shutdownAsync(): Promise<void>;
     shutdown(): void;
 }

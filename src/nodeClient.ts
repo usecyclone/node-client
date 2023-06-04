@@ -14,21 +14,49 @@ export default class NodeClient {
         })
         this.machineId = machineId.machineIdSync(true)
 
-        // Use prepend listener because we want to run Cyclone signal handler before
-        // another signal handler that explicitly calls process.exit()
-        process.prependListener('SIGINT', this.getSignalHandler('SIGINT'))
-        process.prependListener('SIGTERM', this.getSignalHandler('SIGTERM'))
+        this._setup()
     }
 
+    _setup() {
+        // Use prepend listener because we want to run Cyclone signal handler before
+        // another signal handler that explicitly calls process.exit()
+        process.prependListener('SIGINT', this._getShutdownSignalHandler('SIGINT'))
+        process.prependListener('SIGTERM', this._getShutdownSignalHandler('SIGTERM'))
 
-    getSignalHandler(signal: String) {
+        this._reportArgvEvent()
+    }
+
+    _reportArgvEvent() {
+        this.posthogClient.capture({
+            distinctId: this.machineId,
+            event: "argv",
+            properties: {
+                ...this._getMetadata(),
+                argv: process.argv,
+            }
+        })
+    }
+
+    _getShutdownSignalHandler(signal: String) {
         return () => {
-            // this.posthogClient.capture()
-            // console.log("CYCLONE SIGNAL HANDLER:", signal)
+            this.posthogClient.capture({
+                distinctId: this.machineId,
+                event: "cli_os_signal",
+                properties: {
+                    ...this._getMetadata(),
+                    signal: signal,
+                }
+            })
             this.shutdown()
         };
     }
 
+    _getMetadata() {
+        return {
+            projectId: this.projectId,
+            machineId: this.machineId
+        }
+    }
 
     async shutdownAsync() {
         await this.posthogClient.shutdownAsync()
