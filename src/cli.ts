@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import spawnProcessAndCaptureOutput from './entrypoint.js';
+import { spawnProcessAndCaptureOutput } from './entrypoint.js';
 import NodeClient from './nodeClient.js';
 
 /** 

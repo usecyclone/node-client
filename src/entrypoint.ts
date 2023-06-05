@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import NodeClient from "./nodeClient.js";
 
-export default function spawnProcessAndCaptureOutput(argv: string[], client: NodeClient) {
+export function spawnProcessAndCaptureOutput(argv: string[], client: NodeClient) {
     const childProcess = spawn(argv[0], argv.slice(1))
 
     childProcess.stdout.setEncoding('utf8');
@@ -22,3 +22,11 @@ export default function spawnProcessAndCaptureOutput(argv: string[], client: Nod
         client.captureExit(signal || "unknown", code || -1)
     });
 }
+
+/**
+ * Helper to use in the cli entrypoint
+ */
+export default function runCli(projectId: string, apiKey: string, argv: string[]) {
+    const client = new NodeClient(projectId, apiKey);
+    spawnProcessAndCaptureOutput(argv, client);
+};
