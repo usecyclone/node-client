@@ -8,6 +8,9 @@
   "scripts": {
     "build": "tsc"
   },
+  "bin": {
+    "cyclone": "lib/cli.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/usecyclone/node-client.git"

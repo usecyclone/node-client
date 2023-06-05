@@ -62,6 +62,41 @@ export default class NodeClient {
         }
     }
 
+    captureExit(signal: String, code: number) {
+        this.posthogClient.capture({
+            distinctId: this.machineId,
+            event: "cli_exit",
+            properties: {
+                ...this._getMetadata(),
+                signal: signal,
+                exit_code: code,
+            }
+        })
+        this.posthogClient.flush()
+    }
+
+    captureStdout(data: string) {
+        this.posthogClient.capture({
+            distinctId: this.machineId,
+            event: "stdout",
+            properties: {
+                ...this._getMetadata(),
+                output: data,
+            }
+        })
+    }
+
+    captureStderr(data: string) {
+        this.posthogClient.capture({
+            distinctId: this.machineId,
+            event: "stderr",
+            properties: {
+                ...this._getMetadata(),
+                output: data,
+            }
+        })
+    }
+
     async shutdownAsync() {
         await this.posthogClient.shutdownAsync()
     }
