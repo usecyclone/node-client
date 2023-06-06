@@ -4,6 +4,9 @@ import NodeClient from "./nodeClient.js";
 export function spawnProcessAndCaptureOutput(argv: string[], client: NodeClient) {
     const childProcess = spawn(argv[0], argv.slice(1))
 
+    // pipe stdin to child process
+    process.stdin.pipe(childProcess.stdin);
+
     childProcess.stdout.setEncoding('utf8');
     childProcess.stdout.on('data', function (data) {
         data = data.toString();
