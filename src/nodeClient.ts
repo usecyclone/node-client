@@ -2,7 +2,7 @@ import { PostHog } from 'posthog-node'
 import { CYCLONE_POSTHOG_ADDRESS } from './constants.js'
 import machineId from 'node-machine-id';
 
-const CYCLONE_MACHINE_ID_ENV_VAR = "CYCLONE_MACHINE_ID"
+const CYCLONE_MACHINE_ID_ENV_VAR = "NEXT_PUBLIC_CYCLONE_MACHINE_ID"
 
 export default class NodeClient {
     projectId: string
