@@ -2,6 +2,8 @@ import { PostHog } from 'posthog-node'
 import { CYCLONE_POSTHOG_ADDRESS } from './constants.js'
 import machineId from 'node-machine-id';
 
+const CYCLONE_MACHINE_ID_ENV_VAR = "CYCLONE_MACHINE_ID"
+
 export default class NodeClient {
     projectId: string
     posthogClient: PostHog
@@ -16,6 +18,9 @@ export default class NodeClient {
             flushInterval: 0,
         })
         this.machineId = machineId.machineIdSync(true)
+
+        process.env[CYCLONE_MACHINE_ID_ENV_VAR] = this.machineId
+
         this._setup()
     }
 
