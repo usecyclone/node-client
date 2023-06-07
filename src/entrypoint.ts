@@ -24,6 +24,17 @@ export function spawnProcessAndCaptureOutput(argv: string[], client: NodeClient)
     childProcess.on('exit', (code: number | null, signal: NodeJS.Signals | null) => {
         client.captureExit(signal || "unknown", code || -1)
     });
+
+    var onExitSigInt = function () {
+        childProcess.kill('SIGINT');
+        process.exit(0);
+    };
+    var onExitSigTerm = function () {
+        childProcess.kill('SIGTERM');
+        process.exit(0);
+    };
+    process.on('SIGINT', onExitSigInt);
+    process.on('SIGTERM', onExitSigTerm);
 }
 
 /**
