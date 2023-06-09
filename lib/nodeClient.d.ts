@@ -5,6 +5,7 @@ export default class NodeClient {
     machineId: string;
     constructor(projectId: string, apiKey: string);
     _setup(): void;
+    _checkDoNotTrack(): boolean;
     _reportArgvEvent(): void;
     _getShutdownSignalHandler(signal: String): () => void;
     _getMetadata(): {

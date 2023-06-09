@@ -1,5 +1,6 @@
-import { spawn } from "child_process";
+import { spawn, exec } from "child_process";
 import NodeClient from "./nodeClient.js";
+import { CYCLONE_DISABLE_ENV_VAR } from "./constants.js";
 
 export function spawnProcessAndCaptureOutput(argv: string[], client: NodeClient) {
     const childProcess = spawn(argv[0], argv.slice(1))
@@ -41,6 +42,11 @@ export function spawnProcessAndCaptureOutput(argv: string[], client: NodeClient)
  * Helper to use in the cli entrypoint
  */
 export default function runCli(projectId: string, apiKey: string, argv: string[]) {
+    if (process.env[CYCLONE_DISABLE_ENV_VAR]) {
+        exec(argv.join(" "))
+        return
+    }
+
     const client = new NodeClient(projectId, apiKey);
     spawnProcessAndCaptureOutput(argv, client);
 };

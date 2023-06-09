@@ -1,8 +1,9 @@
 import { PostHog } from 'posthog-node'
-import { CYCLONE_POSTHOG_ADDRESS } from './constants.js'
+import { CYCLONE_POSTHOG_ADDRESS, CYCLONE_DISABLE_ENV_VAR } from './constants.js'
 import machineId from 'node-machine-id';
 
 const CYCLONE_MACHINE_ID_ENV_VAR = "NEXT_PUBLIC_CYCLONE_MACHINE_ID"
+const NEXT_JS_PREFIX = "NEXT_PUBLIC_"
 
 export default class NodeClient {
     projectId: string
@@ -21,7 +22,9 @@ export default class NodeClient {
 
         process.env[CYCLONE_MACHINE_ID_ENV_VAR] = this.machineId
 
-        this._setup()
+        if (!this._checkDoNotTrack()) {
+            this._setup()
+        }
     }
 
     _setup() {
@@ -33,7 +36,15 @@ export default class NodeClient {
         this._reportArgvEvent()
     }
 
+    _checkDoNotTrack() {
+        return process.env[CYCLONE_DISABLE_ENV_VAR] === undefined
+    }
+
     _reportArgvEvent() {
+        if (this._checkDoNotTrack()) {
+            return
+        }
+
         this.posthogClient.capture({
             distinctId: this.machineId,
             event: "argv",
@@ -46,6 +57,9 @@ export default class NodeClient {
 
     _getShutdownSignalHandler(signal: String) {
         return () => {
+            if (this._checkDoNotTrack()) {
+                return
+            }
             this.posthogClient.capture({
                 distinctId: this.machineId,
                 event: "cli_os_signal",
@@ -68,6 +82,10 @@ export default class NodeClient {
     }
 
     captureExit(signal: String, code: number) {
+        if (this._checkDoNotTrack()) {
+            return
+        }
+
         this.posthogClient.capture({
             distinctId: this.machineId,
             event: "cli_exit",
@@ -81,6 +99,10 @@ export default class NodeClient {
     }
 
     captureStdout(data: string) {
+        if (this._checkDoNotTrack()) {
+            return
+        }
+
         this.posthogClient.capture({
             distinctId: this.machineId,
             event: "stdout",
@@ -92,6 +114,10 @@ export default class NodeClient {
     }
 
     captureStderr(data: string) {
+        if (this._checkDoNotTrack()) {
+            return
+        }
+
         this.posthogClient.capture({
             distinctId: this.machineId,
             event: "stderr",
