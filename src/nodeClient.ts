@@ -22,6 +22,11 @@ export default class NodeClient {
 
         process.env[CYCLONE_MACHINE_ID_ENV_VAR] = this.machineId
 
+        if (this._checkDoNotTrack()) {
+            // set do not track for next.js client
+            process.env[`${NEXT_JS_PREFIX}${CYCLONE_DISABLE_ENV_VAR}`] = 'true'
+        }
+
         if (!this._checkDoNotTrack()) {
             this._setup()
         }
@@ -37,7 +42,7 @@ export default class NodeClient {
     }
 
     _checkDoNotTrack() {
-        return process.env[CYCLONE_DISABLE_ENV_VAR] === undefined
+        return process.env[CYCLONE_DISABLE_ENV_VAR] !== undefined
     }
 
     _reportArgvEvent() {
@@ -60,6 +65,7 @@ export default class NodeClient {
             if (this._checkDoNotTrack()) {
                 return
             }
+
             this.posthogClient.capture({
                 distinctId: this.machineId,
                 event: "cli_os_signal",

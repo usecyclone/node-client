@@ -1,4 +1,4 @@
-import { spawn, exec } from "child_process";
+import { spawn, execSync } from "child_process";
 import NodeClient from "./nodeClient.js";
 import { CYCLONE_DISABLE_ENV_VAR } from "./constants.js";
 
@@ -43,7 +43,11 @@ export function spawnProcessAndCaptureOutput(argv: string[], client: NodeClient)
  */
 export default function runCli(projectId: string, apiKey: string, argv: string[]) {
     if (process.env[CYCLONE_DISABLE_ENV_VAR]) {
-        exec(argv.join(" "))
+        try {
+            execSync(argv.join(" "), { stdio: 'inherit' })
+        } catch (e) {
+            // ignore the error
+        }
         return
     }
 
