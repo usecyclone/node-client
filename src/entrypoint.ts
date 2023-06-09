@@ -1,29 +1,62 @@
 import { spawn, execSync } from "child_process";
+import pty from 'node-pty'
 import NodeClient from "./nodeClient.js";
 import { CYCLONE_DISABLE_ENV_VAR } from "./constants.js";
 
 export function spawnProcessAndCaptureOutput(argv: string[], client: NodeClient) {
-    const childProcess = spawn(argv[0], argv.slice(1))
+    const SIGNALS = [
+        "", // 0 is normal exit
+        "SIGHUP",
+        "SIGINT",
+        "SIGQUIT",
+        "SIGILL",
+        "SIGTRAP",
+        "SIGABRT",
+        "SIGEMT",
+        "SIGFPE",
+        "SIGKILL",
+        "SIGBUS",
+        "SIGSEGV",
+        "SIGSYS",
+        "SIGPIPE",
+        "SIGALRM",
+        "SIGTERM",
+        "SIGURG",
+        "SIGSTOP",
+        "SIGTSTP",
+        "SIGCONT",
+        "SIGCHLD",
+        "SIGTTIN",
+        "SIGTTOU",
+        "SIGIO",
+        "SIGXCPU",
+        "SIGXFSZ",
+        "SIGVTALRM",
+        "SIGPROF",
+        "SIGWINCH",
+        "SIGINFO",
+        "SIGUSR1",
+        "SIGUSR2"
+    ];
 
-    // pipe stdin to child process
-    process.stdin.pipe(childProcess.stdin);
+    const childProcess = pty.spawn(argv[0], argv.slice(1), {
+        name: 'xterm-256color',
+        cwd: process.cwd(),
+        encoding: "utf8",
+        ...process.env
+    })
 
-    childProcess.stdout.setEncoding('utf8');
-    childProcess.stdout.on('data', function (data) {
-        data = data.toString();
+    childProcess.onData(function (data) {
         process.stdout.write(data)
         client.captureStdout(data)
     });
 
-    childProcess.stderr.setEncoding('utf8');
-    childProcess.stderr.on('data', function (data) {
-        data = data.toString();
-        process.stderr.write(data)
-        client.captureStderr(data)
-    });
-
-    childProcess.on('exit', (code: number | null, signal: NodeJS.Signals | null) => {
-        client.captureExit(signal || "unknown", code || -1)
+    childProcess.on("exit", (exitCode: number, signal?: number | undefined) => {
+        let signalString = "unknown";
+        if (signal && signal >= 1 && signal < SIGNALS.length) {
+            signalString = SIGNALS[signal]
+        }
+        client.captureExit(signalString, exitCode)
     });
 
     var onExitSigInt = function () {
