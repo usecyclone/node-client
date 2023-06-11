@@ -60,7 +60,7 @@ export default class NodeClient {
         })
     }
 
-    _getShutdownSignalHandler(signal: String) {
+    _getShutdownSignalHandler(signal: string) {
         return () => {
             if (this._checkDoNotTrack()) {
                 return
@@ -77,6 +77,9 @@ export default class NodeClient {
             // TODO: debug why the flush here is not working
             this.posthogClient.flush()
             this.shutdown()
+            if (process.listenerCount(signal) === 1) {
+                process.exit(0);
+            }
         };
     }
 

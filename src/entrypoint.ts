@@ -57,15 +57,15 @@ export function spawnProcessAndCaptureOutput(argv: string[], client: NodeClient)
             signalString = SIGNALS[signal]
         }
         client.captureExit(signalString, exitCode)
+        process.exit(exitCode)
     });
 
     var onExitSigInt = function () {
+        childProcess.write("\x03");
         childProcess.kill('SIGINT');
-        process.exit(0);
     };
     var onExitSigTerm = function () {
         childProcess.kill('SIGTERM');
-        process.exit(0);
     };
     process.on('SIGINT', onExitSigInt);
     process.on('SIGTERM', onExitSigTerm);
