@@ -5,8 +5,6 @@ import machineId from 'node-machine-id'
 const CYCLONE_MACHINE_ID_ENV_VAR = 'NEXT_PUBLIC_CYCLONE_MACHINE_ID'
 const NEXT_JS_PREFIX = 'NEXT_PUBLIC_'
 
-export default abc
-
 export default class NodeClient {
   projectId: string
   posthogClient: PostHog
@@ -34,7 +32,7 @@ export default class NodeClient {
     }
   }
 
-  _setup () {
+  _setup (): void {
     // Use prepend listener because we want to run Cyclone signal handler before
     // another signal handler that explicitly calls process.exit()
     process.prependListener('SIGINT', this._getShutdownSignalHandler('SIGINT'))
@@ -43,11 +41,11 @@ export default class NodeClient {
     this._reportArgvEvent()
   }
 
-  _checkDoNotTrack () {
+  _checkDoNotTrack (): boolean {
     return process.env[CYCLONE_DISABLE_ENV_VAR] !== undefined
   }
 
-  _reportArgvEvent () {
+  _reportArgvEvent (): void {
     if (this._checkDoNotTrack()) {
       return
     }
@@ -85,14 +83,14 @@ export default class NodeClient {
     }
   }
 
-  _getMetadata () {
+  _getMetadata (): { projectId: string, machineId: string } {
     return {
       projectId: this.projectId,
       machineId: this.machineId
     }
   }
 
-  captureExit (signal: string, code: number) {
+  captureExit (signal: string, code: number): void {
     if (this._checkDoNotTrack()) {
       return
     }
@@ -109,7 +107,7 @@ export default class NodeClient {
     this.posthogClient.flush()
   }
 
-  captureStdout (data: string) {
+  captureStdout (data: string): void {
     if (this._checkDoNotTrack()) {
       return
     }
@@ -124,7 +122,7 @@ export default class NodeClient {
     })
   }
 
-  captureStderr (data: string) {
+  captureStderr (data: string): void {
     if (this._checkDoNotTrack()) {
       return
     }
@@ -139,11 +137,11 @@ export default class NodeClient {
     })
   }
 
-  async shutdownAsync () {
+  async shutdownAsync (): Promise<void> {
     await this.posthogClient.shutdownAsync()
   }
 
-  shutdown () {
+  shutdown (): void {
     this.posthogClient.shutdown()
   }
 }

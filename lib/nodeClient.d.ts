@@ -12,7 +12,7 @@ export default class NodeClient {
         projectId: string;
         machineId: string;
     };
-    captureExit(signal: String, code: number): void;
+    captureExit(signal: string, code: number): void;
     captureStdout(data: string): void;
     captureStderr(data: string): void;
     shutdownAsync(): Promise<void>;

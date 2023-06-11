@@ -1,9 +1,9 @@
-import { spawn, execSync } from 'child_process'
+import { execSync } from 'child_process'
 import pty from 'node-pty'
 import NodeClient from './nodeClient.js'
 import { CYCLONE_DISABLE_ENV_VAR } from './constants.js'
 
-export function spawnProcessAndCaptureOutput (argv: string[], client: NodeClient) {
+export function spawnProcessAndCaptureOutput (argv: string[], client: NodeClient): void {
   const SIGNALS = [
     '', // 0 is normal exit
     'SIGHUP',
@@ -53,18 +53,18 @@ export function spawnProcessAndCaptureOutput (argv: string[], client: NodeClient
 
   childProcess.on('exit', (exitCode: number, signal?: number | undefined) => {
     let signalString = 'unknown'
-    if (signal && signal >= 1 && signal < SIGNALS.length) {
+    if (signal !== undefined && signal >= 1 && signal < SIGNALS.length) {
       signalString = SIGNALS[signal]
     }
     client.captureExit(signalString, exitCode)
     process.exit(exitCode)
   })
 
-  const onExitSigInt = function () {
+  const onExitSigInt = function (): void {
     childProcess.write('\x03')
     childProcess.kill('SIGINT')
   }
-  const onExitSigTerm = function () {
+  const onExitSigTerm = function (): void {
     childProcess.kill('SIGTERM')
   }
   process.on('SIGINT', onExitSigInt)
@@ -74,8 +74,8 @@ export function spawnProcessAndCaptureOutput (argv: string[], client: NodeClient
 /**
  * Helper to use in the cli entrypoint
  */
-export default function runCli (projectId: string, apiKey: string, argv: string[]) {
-  if (process.env[CYCLONE_DISABLE_ENV_VAR]) {
+export default function runCli (projectId: string, apiKey: string, argv: string[]): void {
+  if (process.env[CYCLONE_DISABLE_ENV_VAR] != null) {
     try {
       execSync(argv.join(' '), { stdio: 'inherit' })
     } catch (e) {

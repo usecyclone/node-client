@@ -9,17 +9,17 @@ import NodeClient from './nodeClient.js'
  * if the desired command is: node index.js
  * then replace it with: [cli_executable_name] node index.js
  */
-export const cli = () => {
+export const cli = (): void => {
   const argv = process.argv.slice(2)
 
-  const projectId = process.env.npm_package_config_cyclone_project || 'default'
+  const projectId = process.env.npm_package_config_cyclone_project ?? 'default'
   const apiKey = process.env.npm_package_config_cyclone_apikey
 
-  if (!apiKey) {
+  if (apiKey == null) {
     throw new Error('Fatal: No API key found in $npm_package_config_cyclone_apikey')
   }
 
-  if (!projectId) {
+  if (process.env.npm_package_config_cyclone_project == null) {
     console.error('No project ID found in $npm_package_config_cyclone_project, using default')
   }
 
