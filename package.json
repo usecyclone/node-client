@@ -1,6 +1,6 @@
 {
   "name": "cyclone-node",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Cyclone node.js SDK",
   "main": "lib/client.js",
   "types": "lib/client.d.js",
